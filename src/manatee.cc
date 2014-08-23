@@ -15,7 +15,7 @@ using namespace node;
 Handle<Value> Scan(const Arguments& args) {
   HandleScope scope;
 
-  if (args.Length() != 3) {
+  if (args.Length() != 4) {
     return ThrowException(
       Exception::TypeError(String::New("scan requires 3 arguments"))
     );
@@ -23,13 +23,20 @@ Handle<Value> Scan(const Arguments& args) {
 
   Local<Object> bufferObj = args[0]->ToObject();
   uint8_t* pixels = (uint8_t *)Buffer::Data(bufferObj);
-  size_t        npixels = Buffer::Length(bufferObj);
+  size_t npixels = Buffer::Length(bufferObj);
   int32_t ncols = args[1]->IntegerValue();
   int32_t nrows = args[2]->IntegerValue();
+  uint32_t codeMask = args[3]->IntegerValue();
 
-  if (MWB_setActiveCodes(MWB_CODE_MASK_PDF) != MWB_RT_OK) {
+  if ((size_t)ncols * (size_t)nrows != npixels) {
     return ThrowException(
-      Exception::TypeError(String::New("Couldn't set PDF417 mode"))
+      Exception::TypeError(String::New("Image dimensions don't match image"))
+    );
+  }
+
+  if (MWB_setActiveCodes(codeMask) != MWB_RT_OK) {
+    return ThrowException(
+      Exception::TypeError(String::New("Couldn't set barcode types"))
     );
   }
 
