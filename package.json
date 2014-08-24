@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/joshmh/node-manatee.git"
+    "url": "git://github.com/lamassu/node-manatee.git"
   },
   "keywords": [
     "pdf417"
@@ -18,6 +18,6 @@
   "license": "UNLICENSE",
   "gypfile": true,
   "bugs": {
-    "url": "https://github.com/joshmh/node-manatee/issues"
+    "url": "https://github.com/lamassu/node-manatee/issues"
   }
 }
