@@ -7,7 +7,7 @@ var CODENAMES = {
   pdf417: 0x00000040
 };
 
-exports.scanningLevel = 5;
+exports.scanningLevel = 3;
 
 exports.version = manatee.version;
 
