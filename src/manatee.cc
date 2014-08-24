@@ -15,9 +15,9 @@ using namespace node;
 Handle<Value> Scan(const Arguments& args) {
   HandleScope scope;
 
-  if (args.Length() != 4) {
+  if (args.Length() != 5) {
     return ThrowException(
-      Exception::TypeError(String::New("scan requires 3 arguments"))
+      Exception::TypeError(String::New("scan requires 5 arguments"))
     );
   }
 
@@ -27,6 +27,7 @@ Handle<Value> Scan(const Arguments& args) {
   int32_t ncols = args[1]->IntegerValue();
   int32_t nrows = args[2]->IntegerValue();
   uint32_t codeMask = args[3]->IntegerValue();
+  int scanningLevel = args[4]->IntegerValue();
 
   if ((size_t)ncols * (size_t)nrows != npixels) {
     return ThrowException(
@@ -43,7 +44,7 @@ Handle<Value> Scan(const Arguments& args) {
   MWB_setDirection(MWB_SCANDIRECTION_HORIZONTAL|MWB_SCANDIRECTION_VERTICAL);
   MWB_setScanningRect(MWB_CODE_MASK_PDF, 0, 00, 100, 100);
 
-  if (MWB_setLevel(2) != MWB_RT_OK) {
+  if (MWB_setLevel(scanningLevel) != MWB_RT_OK) {
     return ThrowException(
       Exception::TypeError(String::New("Couldn't set scanning level"))
     );

@@ -131,7 +131,7 @@ LIBTOOLFLAGS_Release := \
 
 LIBS := \
 	-undefined dynamic_lookup \
-	../deps/libBarcodeScanner.a
+	-lBarcodeScanner
 
 $(builddir)/manatee.node: GYP_LDFLAGS := $(LDFLAGS_$(BUILDTYPE))
 $(builddir)/manatee.node: LIBS := $(LIBS)
