@@ -77,8 +77,8 @@ Handle<Value> Register(const Arguments& args) {
   }
 
   uint32_t codeMask = args[0]->IntegerValue();
-  String::AsciiValue userName(args[0]->ToString());
-  String::AsciiValue key(args[1]->ToString());
+  String::AsciiValue userName(args[1]->ToString());
+  String::AsciiValue key(args[2]->ToString());
 
   int retval = MWB_registerCode(codeMask, *userName, *key);
   return scope.Close(Integer::New(retval));
