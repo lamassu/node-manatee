@@ -1,6 +1,4 @@
-#include <node.h>
-#include <v8.h>
-#include <node_buffer.h>
+#include <nan.h>
 
 // C standard library
 #include <cstdlib>
@@ -12,62 +10,53 @@
 using namespace v8;
 using namespace node;
 
-Handle<Value> Scan(const Arguments& args) {
-  HandleScope scope;
-
-  if (args.Length() != 5) {
-    return ThrowException(
-      Exception::TypeError(String::New("scan requires 5 arguments"))
-    );
+NAN_METHOD(Scan) {
+  if (info.Length() != 5) {
+    return Nan::ThrowTypeError("scan requires 5 arguments");
   }
 
-  Local<Object> bufferObj = args[0]->ToObject();
-  uint8_t* pixels = (uint8_t *)Buffer::Data(bufferObj);
-  size_t npixels = Buffer::Length(bufferObj);
-  int32_t ncols = args[1]->IntegerValue();
-  int32_t nrows = args[2]->IntegerValue();
-  uint32_t codeMask = args[3]->IntegerValue();
-  int scanningLevel = args[4]->IntegerValue();
+  if (!info[0]->IsObject() || !node::Buffer::HasInstance(info[0])) {
+    return Nan::ThrowTypeError("First argument must be a buffer");
+  }
+
+  v8::Local<v8::Object> buffer = Nan::To<v8::Object>(info[0]).ToLocalChecked();
+  uint8_t* pixels = (uint8_t *)Buffer::Data(buffer);
+  size_t npixels = Buffer::Length(buffer);
+  int32_t ncols = Nan::To<int32_t>(info[1]).FromJust();
+  int32_t nrows = Nan::To<int32_t>(info[2]).FromJust();
+  uint32_t codeMask = Nan::To<uint32_t>(info[3]).FromJust();
+  int scanningLevel = Nan::To<int32_t>(info[4]).FromJust();
 
   if ((size_t)ncols * (size_t)nrows != npixels) {
-    return ThrowException(
-      Exception::TypeError(String::New("Image dimensions don't match image"))
-    );
+    printf("npixels: %d\n", (int)npixels);
+    printf("ncols: %d\n", (int)ncols);
+    printf("nrows: %d\n", (int)nrows);
+    return Nan::ThrowTypeError("Image dimensions don't match image");
   }
 
   if (MWB_setActiveCodes(codeMask) != MWB_RT_OK) {
-    return ThrowException(
-      Exception::TypeError(String::New("Couldn't set barcode types"))
-    );
+    return Nan::ThrowTypeError("Couldn't set barcode types");
   }
 
   MWB_setDirection(MWB_SCANDIRECTION_HORIZONTAL|MWB_SCANDIRECTION_VERTICAL);
   MWB_setScanningRect(MWB_CODE_MASK_PDF, 0, 00, 100, 100);
 
   if (MWB_setLevel(scanningLevel) != MWB_RT_OK) {
-    return ThrowException(
-      Exception::TypeError(String::New("Couldn't set scanning level"))
-    );
+    return Nan::ThrowTypeError("Couldn't set scanning level");
   }
 
   uint8_t *p_data = NULL;
   int retval = MWB_scanGrayscaleImage(pixels, ncols, nrows, &p_data);
 
   if (retval <= 0) {
-    return scope.Close(Null());
+    info.GetReturnValue().Set(Nan::Null());
   }
 
-  Buffer *slowBuffer = Buffer::New(retval);
-  memcpy(Buffer::Data(slowBuffer), p_data, retval);
-
-  Local<Object> globalObj = Context::GetCurrent()->Global();
-  Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(String::New("Buffer")));
-  Handle<Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(retval), v8::Integer::New(0) };
-  Local<Object> actualBuffer = bufferConstructor->NewInstance(3, constructorArgs);
-
-  return scope.Close(actualBuffer);
+  Nan::MaybeLocal<v8::Object> outBuffer = Nan::NewBuffer((char *)p_data, retval);
+  info.GetReturnValue().Set(outBuffer.ToLocalChecked());
 }
 
+/*
 Handle<Value> Register(const Arguments& args) {
   HandleScope scope;
 
@@ -94,16 +83,17 @@ Handle<Value> Version(const Arguments& args) {
     (version >> 8) & 0xff, (version >> 0) & 0xff);
   return scope.Close(String::New(versionString));
 }
+*/
 
-void RegisterModule(Handle<Object> target) {
+NAN_MODULE_INIT(InitAll) {
+  Nan::SetMethod(target, "scan", Scan);
 
-    // target is the module object you see when require()ing the .node file.
-  target->Set(String::NewSymbol("scan"),
-    FunctionTemplate::New(Scan)->GetFunction());
-  target->Set(String::NewSymbol("register"),
-    FunctionTemplate::New(Register)->GetFunction());
-  target->Set(String::NewSymbol("version"),
-    FunctionTemplate::New(Version)->GetFunction());
+/*
+  Nan::Set(target, Nan::New("register").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<FunctionTemplate>(Register)).ToLocalChecked());
+  Nan::Set(target, Nan::New("version").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<FunctionTemplate>(Version)).ToLocalChecked());
+*/
 }
 
-NODE_MODULE(manatee, RegisterModule);
+NODE_MODULE(manatee, InitAll);

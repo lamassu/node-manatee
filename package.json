@@ -19,5 +19,9 @@
   "gypfile": true,
   "bugs": {
     "url": "https://github.com/lamassu/node-manatee/issues"
+  },
+  "dependencies": {
+    "microtime": "^2.1.1",
+    "nan": "^2.3.5"
   }
 }
