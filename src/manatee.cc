@@ -56,44 +56,31 @@ NAN_METHOD(Scan) {
   info.GetReturnValue().Set(outBuffer.ToLocalChecked());
 }
 
-/*
-Handle<Value> Register(const Arguments& args) {
-  HandleScope scope;
-
-  if (args.Length() != 3) {
-    return ThrowException(
-      Exception::TypeError(String::New("register requires 3 arguments"))
-    );
+NAN_METHOD(Register) {
+  if (info.Length() != 3) {
+    return Nan::ThrowTypeError("register requires 3 arguments");
   }
 
-  uint32_t codeMask = args[0]->IntegerValue();
-  String::AsciiValue userName(args[1]->ToString());
-  String::AsciiValue key(args[2]->ToString());
+  uint32_t codeMask = Nan::To<uint32_t>(info[0]).FromJust();
+  v8::Local<v8::String> userName = Nan::To<v8::String>(info[1]).ToLocalChecked();
+  v8::Local<v8::String> key = Nan::To<v8::String>(info[2]).ToLocalChecked();
 
-  int retval = MWB_registerCode(codeMask, *userName, *key);
-  return scope.Close(Integer::New(retval));
+  int retval = MWB_registerCode(codeMask, *Nan::Utf8String(userName), *Nan::Utf8String(key));
+  info.GetReturnValue().Set(Nan::New(retval));
 }
 
-Handle<Value> Version(const Arguments& args) {
-  HandleScope scope;
-
+NAN_METHOD(Version) {
   char versionString[256];
   unsigned int version = MWB_getLibVersion();
   sprintf(versionString, "%i.%i.%i", (version >> 16) & 0xff,
     (version >> 8) & 0xff, (version >> 0) & 0xff);
-  return scope.Close(String::New(versionString));
+  info.GetReturnValue().Set(Nan::New(versionString).ToLocalChecked());
 }
-*/
 
 NAN_MODULE_INIT(InitAll) {
   Nan::SetMethod(target, "scan", Scan);
-
-/*
-  Nan::Set(target, Nan::New("register").ToLocalChecked(),
-    Nan::GetFunction(Nan::New<FunctionTemplate>(Register)).ToLocalChecked());
-  Nan::Set(target, Nan::New("version").ToLocalChecked(),
-    Nan::GetFunction(Nan::New<FunctionTemplate>(Version)).ToLocalChecked());
-*/
+  Nan::SetMethod(target, "version", Version);
+  Nan::SetMethod(target, "register", Register);
 }
 
 NODE_MODULE(manatee, InitAll);
