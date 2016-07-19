@@ -47,9 +47,14 @@ NAN_METHOD(Scan) {
 
   uint8_t *p_data = NULL;
   int retval = MWB_scanGrayscaleImage(pixels, ncols, nrows, &p_data);
+  char msg[256];
 
   if (retval <= 0) {
+    sprintf(msg, "Scan failed: %d\n", retval);
+    return Nan::ThrowTypeError(msg);
+    printf("Error: %d", retval);
     info.GetReturnValue().Set(Nan::Null());
+    return;
   }
 
   Nan::MaybeLocal<v8::Object> outBuffer = Nan::NewBuffer((char *)p_data, retval);
