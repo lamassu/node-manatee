@@ -50,9 +50,6 @@ NAN_METHOD(Scan) {
   char msg[256];
 
   if (retval <= 0) {
-    sprintf(msg, "Scan failed: %d\n", retval);
-    return Nan::ThrowTypeError(msg);
-    printf("Error: %d", retval);
     info.GetReturnValue().Set(Nan::Null());
     return;
   }
