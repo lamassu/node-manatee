@@ -1,6 +1,6 @@
 {
   "name": "manatee",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "A node.js wrapper for the Manatee barcode library",
   "main": "index.js",
   "scripts": {
