@@ -1,6 +1,6 @@
 {
   "name": "manatee",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A node.js wrapper for the Manatee barcode library",
   "main": "index.js",
   "scripts": {
@@ -21,8 +21,10 @@
     "url": "https://github.com/lamassu/node-manatee/issues"
   },
   "dependencies": {
-    "benchmark": "^2.1.0",
-    "microtime": "^2.1.1",
     "nan": "^2.3.5"
+  },
+  "devDependencies": {
+    "benchmark": "^2.1.0",
+    "microtime": "^2.1.1"
   }
 }
