@@ -21,10 +21,6 @@
     "url": "https://github.com/lamassu/node-manatee/issues"
   },
   "dependencies": {
-    "nan": "^2.3.5"
-  },
-  "devDependencies": {
-    "benchmark": "^2.1.0",
-    "microtime": "^2.1.1"
+    "node-addon-api": "^5.0.0"
   }
 }
