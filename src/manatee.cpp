@@ -46,7 +46,9 @@ Napi::Value Scan (const Napi::CallbackInfo &info)
 	int retval = MWB_scanGrayscaleImage(pixels, ncols, nrows, &p_data);
 	if (retval <= 0) return env.Null();
 
-	return Napi::Buffer<uint8_t>::New(env, p_data, retval);
+	Napi::Buffer<uint8_t> ret = Napi::Buffer<uint8_t>::New(env, p_data, retval);
+	free(p_data);
+	return ret;
 }
 
 Napi::Value Register (const Napi::CallbackInfo &info)
