@@ -1,21 +1,27 @@
 'use strict';
 
-var manatee = require('./build/Release/manatee');
+const manatee = require('./build/Release/manatee.node');
 
-var CODENAMES = {
+const CODENAMES = {
   qr: 0x00000001,
   pdf417: 0x00000040
 };
 
 exports.scanningLevel = 3;
 
-exports.version = manatee.version;
+exports.version = () => {
+  const v = manatee.version();
+  const M = (v >> 16) & 0xff
+  const m = (v >> 8) & 0xff
+  const p = (v >> 0) & 0xff
+  return `${M}.${m}.${p}`
+}
 
 exports.register = function register(codeName, username, key) {
-  var codeMask = CODENAMES[codeName];
-  if (!codeMask) throw new Error('Unrecognized codeName: ' + codeName);
+  const codeMask = CODENAMES[codeName];
+  if (!codeMask) throw new TypeError('Unrecognized codeName: ' + codeName);
 
-  var result = manatee.register(codeMask, username, key);
+  const result = manatee.register(codeMask, username, key);
   if (result === 0) return;
 
   switch (result) {
@@ -25,9 +31,11 @@ exports.register = function register(codeName, username, key) {
 };
 
 exports.scan = function scan(image, width, height, codeName) {
-  var codeMask = CODENAMES[codeName];
-  if (!codeMask) throw new Error('Unrecognized codeName: ' + codeName);
+  if (typeof(width) !== 'number') throw new TypeError("Image width must be a number")
+  if (typeof(height) !== 'number') throw new TypeError("Image height must be a number")
 
+  const codeMask = CODENAMES[codeName];
+  if (!codeMask) throw new TypeError('Unrecognized codeName: ' + codeName);
   return manatee.scan(image, width, height, codeMask, exports.scanningLevel);
 };
 
